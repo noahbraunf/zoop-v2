@@ -1,9 +1,9 @@
 const std = @import("std");
 
-pub fn elementCount(shape: []const usize) ?usize {
+pub fn elementCount(shape: []const usize) error{Overflow}!usize {
     var prod: usize = 1;
     for (shape) |dim| {
-        prod = std.math.mul(usize, prod, dim) catch return null;
+        prod = try std.math.mul(usize, prod, dim);
     }
     return prod;
 }
@@ -90,10 +90,10 @@ test "Array rank extraction" {
 }
 
 test "Matrix element count" {
-    try std.testing.expectEqual(@as(?usize, 12), elementCount(&[_]usize{ 3, 4 }));
-    try std.testing.expectEqual(@as(?usize, 24), elementCount(&[_]usize{ 2, 3, 4 }));
-    try std.testing.expectEqual(@as(?usize, 7), elementCount(&[_]usize{7}));
-    try std.testing.expectEqual(@as(?usize, 1), elementCount(&[_]usize{}));
-    try std.testing.expectEqual(@as(?usize, 0), elementCount(&[_]usize{ 1, 2, 3, 0 }));
-    try std.testing.expectEqual(@as(?usize, null), elementCount(&[_]usize{ std.math.maxInt(usize), 2, 3 }));
+    try std.testing.expectEqual(@as(usize, 12), try elementCount(&[_]usize{ 3, 4 }));
+    try std.testing.expectEqual(@as(usize, 24), try elementCount(&[_]usize{ 2, 3, 4 }));
+    try std.testing.expectEqual(@as(usize, 7), try elementCount(&[_]usize{7}));
+    try std.testing.expectEqual(@as(usize, 1), try elementCount(&[_]usize{}));
+    try std.testing.expectEqual(@as(usize, 0), try elementCount(&[_]usize{ 1, 2, 3, 0 }));
+    try std.testing.expectError(error.Overflow, elementCount(&[_]usize{ std.math.maxInt(usize), 2, 3 }));
 }
