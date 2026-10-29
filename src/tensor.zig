@@ -1,5 +1,10 @@
 const std = @import("std");
 const ShapeUtils = @import("shape.zig");
+const Utils = @import("utils.zig");
+
+// pub const TensorOptions = struct {
+//     layout: enum { RowMajor, ColumnMajor }
+// };
 
 pub fn Tensor(comptime T: type, comptime rank: usize) type {
     return struct {
@@ -32,6 +37,14 @@ pub fn Tensor(comptime T: type, comptime rank: usize) type {
             };
         }
 
+        pub fn initZeroes(allocator: std.mem.Allocator, shape: [Rank]usize) error{ Overflow, OutOfMemory }!Self {
+            return initFilled(allocator, shape, std.mem.zeroes(T));
+        }
+        pub fn initOnes(allocator: std.mem.Allocator, shape: [Rank]usize) error{ Overflow, OutOfMemory }!Self {
+            Utils.requireNumeric(T);
+            return initFilled(allocator, shape, @as(T, 1));
+        }
+
         pub fn clone(self: *Self) error{OutOfMemory}!Self {
             const newData = try self.allocator.alloc(T, self.shape.len);
             @memcpy(&newData, &self.data);
@@ -50,7 +63,7 @@ pub fn Tensor(comptime T: type, comptime rank: usize) type {
         }
 
         pub fn numElements(self: *Self) usize {
-            return self.shape.len;
+            return ShapeUtils.elementCount(self.shape);
         }
     };
 }

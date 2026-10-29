@@ -8,13 +8,6 @@ pub fn elementCount(shape: []const usize) error{Overflow}!usize {
     return prod;
 }
 
-// fn assertArray(comptime T: type) void {
-//     switch (@typeInfo(T)) {
-//         .array => {},
-//         else => @compileError("expected array type, got " ++ @typeName(T)),
-//     }
-// }
-
 pub fn arrayRank(comptime T: type) usize {
     comptime switch (@typeInfo(T)) {
         .array => |arr| {
