@@ -9,22 +9,9 @@ pub fn elementCount(shape: []const usize) error{Overflow}!usize {
 }
 
 pub fn arrayRank(comptime T: type) usize {
-    comptime switch (@typeInfo(T)) {
-        .array => |arr| {
-            var ChildType = @typeInfo(arr.child);
-            var rank = 1;
-
-            while (ChildType == .array) {
-                rank += 1;
-
-                ChildType = @typeInfo(ChildType.array.child);
-            }
-
-            return rank;
-        },
-        else => {
-            return 0; // we assume everything else is a rank-0 element
-        },
+    return switch (@typeInfo(T)) {
+        .array => |arr| 1 + arrayRank(arr.child),
+        else => 0,
     };
 }
 

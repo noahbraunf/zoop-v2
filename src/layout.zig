@@ -53,7 +53,11 @@ pub fn Layout(comptime rank: usize) type {
         }
 
         pub fn elementCount(self: *Self) error{Overflow}!usize {
-            return ShapeUtils.elementCount(self.shape);
+            return ShapeUtils.elementCount(&self.shape);
+        }
+
+        pub fn elementCountConst(self: *const Self) error{Overflow}!usize {
+            return ShapeUtils.elementCount(&self.shape);
         }
 
         pub fn transpose(self: *Self, axisA: usize, axisB: usize) error{IndexOutOfBounds}!void {
@@ -88,6 +92,11 @@ pub fn Layout(comptime rank: usize) type {
 
             self.offset = try std.math.add(isize, self.offset, try std.math.mul(isize, @intCast(Rank - 1), self.strides[axis]));
             self.strides[axis] = -self.strides[axis];
+        }
+
+        pub fn isContiguous(self: *Self) bool {
+            comptime if (Rank == 0) return true;
+            return std.mem.eql(isize, &self.strides, &ShapeUtils.contiguousStrides(Rank, self.shape) catch return false);
         }
     };
 }

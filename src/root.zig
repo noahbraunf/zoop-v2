@@ -10,4 +10,5 @@ test {
     // _ = @import("tensor_view.zig");
     _ = @import("shape.zig");
     _ = @import("layout.zig");
+    _ = @import("view.zig");
 }
